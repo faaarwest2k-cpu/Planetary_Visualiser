@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrestrial Planetary Interiors & Bulk Geochemistry</title>
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Starry Night Sky Canvas Background */
+        #space-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 1.75rem 2rem; /* Slightly reduced overall height padding */
+            width: 100%;
+            max-width: 620px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(59, 130, 246, 0.1);
+            text-align: center;
+            z-index: 1;
+        }
+        .view-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: 0 auto 1.25rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-item span {
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-value {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .details-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.25rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+        .details-row:last-child {
+            margin-bottom: 0;
+        }
+        .details-key {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1.25rem;
+            text-align: left;
+            margin-top: 0.75rem;
+        }
+        .control-group {
+            flex: 1;
+        }
+        label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        select, .toggle-btn {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.9);
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 0.65rem;
+            border-radius: 0.65rem;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        select:hover, .toggle-btn:hover {
+            border-color: #3b82f6;
+        }
+        select:focus, .toggle-btn:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        .toggle-group {
+            display: flex;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #475569;
+            border-radius: 0.65rem;
+            overflow: hidden;
+        }
+        .toggle-btn {
+            border: none;
+            background: transparent;
+            font-size: 0.75rem;
+            padding: 0.65rem 0.2rem;
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .toggle-btn.active {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+        .callout-line {
+            stroke: #94a3b8;
+            stroke-width: 2;
+            stroke-dasharray: 4;
+        }
+        .callout-text {
+            fill: #e2e8f0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Starry Background Canvas -->
+    <canvas id="space-canvas"></canvas>
+
+    <div class="card">
+        <!-- Unbolded planet title heading -->
+        <h2 id="planet-title" style="margin-top: 0; margin-bottom: 0.75rem; font-size: 1.6rem; font-weight: normal; color: #f8fafc;">Mercury</h2>
+        
+        <!-- View 1: Textured Spherical Cross-Section with Metallic Core & Custom Text Colors -->
+        <div id="layers-view" class="view-container">
+            <svg viewBox="0 0 360 360">
+                <defs>
+                    <radialGradient id="mantleGrad" cx="35%" cy="35%" r="70%">
+                        <stop offset="0%" stop-color="#fed7aa" />
+                        <stop offset="50%" stop-color="#ea580c" />
+                        <stop offset="100%" stop-color="#431407" />
+                    </radialGradient>
+                    <!-- Polished Metallic Core Gradient -->
+                    <radialGradient id="metallicCoreGrad" cx="30%" cy="30%" r="75%">
+                        <stop offset="0%" stop-color="#cbd5e1" />
+                        <stop offset="40%" stop-color="#64748b" />
+                        <stop offset="80%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#0f172a" />
+                    </radialGradient>
+                </defs>
+
+                <!-- Mantle Layer -->
+                <circle id="layer-mantle" cx="180" cy="180" r="120" fill="url(#mantleGrad)" />
+                <!-- Core Layer (Metallic) -->
+                <circle id="layer-core" cx="180" cy="180" r="98" fill="url(#metallicCoreGrad)" />
+                <!-- Crust Ring -->
+                <circle id="layer-crust" cx="180" cy="180" r="120" fill="none" stroke="#e2e8f0" stroke-width="7" />
+
+                <!-- Callout Lines & Labels with Custom Contrast Text Colors -->
+                <line class="callout-line" x1="265" y1="100" x2="315" y2="60" />
+                <text id="txt-crust" class="callout-text" x="320" y="55" fill="#93c5fd">Crust</text>
+
+                <line class="callout-line" x1="275" y1="180" x2="315" y2="140" />
+                <text id="txt-mantle" class="callout-text" x="320" y="135" fill="#fdba74">Mantle</text>
+
+                <line class="callout-line" x1="215" y1="220" x2="315" y2="220" />
+                <text id="txt-core" class="callout-text" x="320" y="225" fill="#e2e8f0">Core</text>
+            </svg>
+        </div>
+
+        <!-- View 2: Bulk Chemistry Donut Chart -->
+        <div id="chemistry-view" class="view-container hidden">
+            <canvas id="chemistryChart"></canvas>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span id="stat-label-1" class="stat-label">Mean Radius</span>
+                <span id="stat-val-1" class="stat-value">2,439.4 km</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-label-2" class="stat-label">Core Radius Ratio</span>
+                <span id="stat-val-2" class="stat-value">82.8%</span>
+            </div>
+            <div class="stat-item">
+                <span id="stat-label-3" class="stat-label">Core Radius</span>
+                <span id="stat-val-3" class="stat-value">2,020 km</span>
+            </div>
+        </div>
+
+        <!-- Expanded Data Panel -->
+        <div class="details-panel" id="details-panel">
+            <div class="details-row"><span class="details-key">Crust Thickness:</span> <span id="val-crust-thick">35 – 50 km</span></div>
+            <div class="details-row"><span class="details-key">Crust Composition:</span> <span id="val-crust-comp">Silicate rock</span></div>
+            <div class="details-row"><span class="details-key">Mantle Thickness:</span> <span id="val-mantle-thick">375 km (Avg)</span></div>
+            <div class="details-row"><span class="details-key">Mantle State:</span> <span id="val-mantle-state">Solid / Viscous</span></div>
+            <div class="details-row"><span class="details-key">Core Composition:</span> <span id="val-core-comp">Iron-nickel alloy</span></div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls-row">
+            <div class="control-group">
+                <label for="planetSelect">Select Terrestrial Planet</label>
+                <select id="planetSelect" onchange="updateDashboard()">
+                    <option value="mercury">Mercury</option>
+                    <option value="venus">Venus</option>
+                    <option value="earth">Earth</option>
+                    <option value="mars">Mars</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Data Layer View</label>
+                <div class="toggle-group">
+                    <button id="btn-layers" class="toggle-btn active" onclick="switchView('layers')">Internal Layers</button>
+                    <button id="btn-chem" class="toggle-btn" onclick="switchView('chemistry')">Bulk Chemistry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Robust Starry Canvas Background Renderer
+    const canvas = document.getElementById('space-canvas');
+    const ctxCanvas = canvas.getContext('2d');
+    let width, height;
+    let stars = [];
+
+    function resizeCanvas() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+
+    function initStars() {
+        stars = [];
+        const count = Math.floor((width * height) / 8000);
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5 + 0.5,
+                alpha: Math.random(),
+                delta: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1)
+            });
+        }
+    }
+
+    function drawSpace() {
+        ctxCanvas.fillStyle = '#030712';
+        ctxCanvas.fillRect(0, 0, width, height);
+
+        const gradient = ctxCanvas.createRadialGradient(width/2, height/2, 50, width/2, height/2, Math.max(width, height)*0.8);
+        gradient.addColorStop(0, '#0f172a');
+        gradient.addColorStop(1, '#030712');
+        ctxCanvas.fillStyle = gradient;
+        ctxCanvas.fillRect(0, 0, width, height);
+
+        for (let star of stars) {
+            star.alpha += star.delta;
+            if (star.alpha <= 0.1 || star.alpha >= 1.0) {
+                star.delta = -star.delta;
+            }
+            ctxCanvas.beginPath();
+            ctxCanvas.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+            ctxCanvas.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+            ctxCanvas.fill();
+        }
+        requestAnimationFrame(drawSpace);
+    }
+
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        initStars();
+    });
+
+    resizeCanvas();
+    initStars();
+    drawSpace();
+
+    const planetaryData = {
+        mercury: {
+            name: "Mercury",
+            radius: "2,439.4 km",
+            coreRatio: "82.8%",
+            coreRadius: "2,020 km",
+            mantleR: 120,
+            coreR: 98,
+            crustWidth: 7,
+            labels: { crust: "Crust (35-50 km)", mantle: "Mantle (375 km)", core: "Core (2020 km)" },
+            details: {
+                crustThick: "35 – 50 km",
+                crustComp: "Silicate rock (Solid)",
+                mantleThick: "375 km (Avg)",
+                mantleState: "Solid / Viscous",
+                coreComp: "Iron-nickel alloy (Partially Molten)"
+            },
+            chem: { labels: ['Fe (Iron)', 'O (Oxygen)', 'Si (Silicon)', 'Mg (Magnesium)', 'Others'], data: [65.0, 14.0, 7.0, 6.5, 7.5] }
+        },
+        venus: {
+            name: "Venus",
+            radius: "6,051.8 km",
+            coreRatio: "52.5%",
+            coreRadius: "3,175 km",
+            mantleR: 138,
+            coreR: 78,
+            crustWidth: 8,
+            labels: { crust: "Crust (10-30 km)", mantle: "Mantle (2925 km)", core: "Core (3175 km)" },
+            details: {
+                crustThick: "10 – 30 km",
+                crustComp: "Silicate basalt (Solid)",
+                mantleThick: "2,925 km (Avg)",
+                mantleState: "Solid / Convective",
+                coreComp: "Iron-nickel (Liquid / Fluid)"
+            },
+            chem: { labels: ['Fe (Iron)', 'O (Oxygen)', 'Si (Silicon)', 'Mg (Magnesium)', 'Others'], data: [31.1, 30.9, 16.2, 14.5, 7.3] }
+        },
+        earth: {
+            name: "Earth",
+            radius: "6,371.0 km",
+            coreRatio: "54.6%",
+            coreRadius: "3,480 km",
+            mantleR: 145,
+            coreR: 82,
+            crustWidth: 9,
+            labels: { crust: "Crust (5-70 km)", mantle: "Mantle (2900 km)", core: "Core (3480 km)" },
+            details: {
+                crustThick: "5 – 70 km",
+                crustComp: "Basalt & Granite (Tectonic)",
+                mantleThick: "2,900 km (Avg)",
+                mantleState: "Solid / Plastic (Convective)",
+                coreComp: "Iron-nickel (Liquid Outer / Solid Inner)"
+            },
+            chem: { labels: ['Fe (Iron)', 'O (Oxygen)', 'Si (Silicon)', 'Mg (Magnesium)', 'Others'], data: [32.1, 30.1, 15.1, 13.9, 8.8] }
+        },
+        mars: {
+            name: "Mars",
+            radius: "3,389.5 km",
+            coreRatio: "54.0%",
+            coreRadius: "1,830 km",
+            mantleR: 128,
+            coreR: 62,
+            crustWidth: 10,
+            labels: { crust: "Crust (30-70 km)", mantle: "Mantle (1550 km)", core: "Core (1830 km)" },
+            details: {
+                crustThick: "30 – 70 km",
+                crustComp: "Iron-rich basalt (Stagnant Lid)",
+                mantleThick: "1,550 km (Avg)",
+                mantleState: "Solid / Convective",
+                coreComp: "Iron-nickel + S/O (Molten / Fluid)"
+            },
+            chem: { labels: ['Fe (Iron)', 'O (Oxygen)', 'Si (Silicon)', 'Mg (Magnesium)', 'Others'], data: [27.0, 32.4, 16.2, 14.8, 9.6] }
+        }
+    };
+
+    let currentView = 'layers';
+    let chemChart = null;
+
+    function initChart() {
+        const ctx = document.getElementById('chemistryChart').getContext('2d');
+        if (chemChart) chemChart.destroy();
+        chemChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: planetaryData.mercury.chem.labels,
+                datasets: [{
+                    data: planetaryData.mercury.chem.data,
+                    backgroundColor: ['#ef4444', '#0ea5e9', '#22c55e', '#eab308', '#64748b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#cbd5e1', boxWidth: 14, font: { size: 12, weight: '600' } }
+                    }
+                },
+                cutout: '58%'
+            }
+        });
+    }
+
+    function switchView(view) {
+        currentView = view;
+        const layersEl = document.getElementById('layers-view');
+        const chemEl = document.getElementById('chemistry-view');
+        const btnLayers = document.getElementById('btn-layers');
+        const btnChem = document.getElementById('btn-chem');
+
+        if (view === 'layers') {
+            layersEl.classList.remove('hidden');
+            chemEl.classList.add('hidden');
+            btnLayers.classList.add('active');
+            btnChem.classList.remove('active');
+        } else {
+            layersEl.classList.add('hidden');
+            chemEl.classList.remove('hidden');
+            btnChem.classList.add('active');
+            btnLayers.classList.remove('active');
+            if (!chemChart) {
+                initChart();
+            } else {
+                chemChart.resize();
+                chemChart.update();
+            }
+        }
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        const key = document.getElementById('planetSelect').value;
+        const p = planetaryData[key];
+        
+        document.getElementById('planet-title').innerText = p.name;
+
+        if (currentView === 'layers') {
+            document.getElementById('stat-label-1').innerText = "Mean Radius";
+            document.getElementById('stat-val-1').innerText = p.radius;
+            document.getElementById('stat-label-2').innerText = "Core Radius Ratio";
+            document.getElementById('stat-val-2').innerText = p.coreRatio;
+            document.getElementById('stat-label-3').innerText = "Core Radius";
+            document.getElementById('stat-val-3').innerText = p.coreRadius;
+
+            document.getElementById('val-crust-thick').innerText = p.details.crustThick;
+            document.getElementById('val-crust-comp').innerText = p.details.crustComp;
+            document.getElementById('val-mantle-thick').innerText = p.details.mantleThick;
+            document.getElementById('val-mantle-state').innerText = p.details.mantleState;
+            document.getElementById('val-core-comp').innerText = p.details.coreComp;
+
+            document.getElementById('layer-mantle').setAttribute('r', p.mantleR);
+            document.getElementById('layer-core').setAttribute('r', p.coreR);
+            document.getElementById('layer-crust').setAttribute('r', p.mantleR);
+            document.getElementById('layer-crust').style.strokeWidth = p.crustWidth;
+
+            document.getElementById('txt-crust').textContent = p.labels.crust;
+            document.getElementById('txt-mantle').textContent = p.labels.mantle;
+            document.getElementById('txt-core').textContent = p.labels.core;
+        } else {
+            document.getElementById('stat-label-1').innerText = "Bulk wt% Fe";
+            document.getElementById('stat-val-1').innerText = p.chem.data[0] + "%";
+            document.getElementById('stat-label-2').innerText = "Bulk wt% O";
+            document.getElementById('stat-val-2').innerText = p.chem.data[1] + "%";
+            document.getElementById('stat-label-3').innerText = "Bulk wt% Si";
+            document.getElementById('stat-val-3').innerText = p.chem.data[2] + "%";
+
+            document.getElementById('val-crust-thick').innerText = p.name + " Bulk Chemistry Overview";
+            document.getElementById('val-crust-comp').innerText = "Fe: " + p.chem.data[0] + "% | O: " + p.chem.data[1] + "%";
+            document.getElementById('val-mantle-thick').innerText = "Si: " + p.chem.data[2] + "% | Mg: " + p.chem.data[3] + "%";
+            document.getElementById('val-mantle-state').innerText = "Others: " + p.chem.data[4] + "%";
+            document.getElementById('val-core-comp').innerText = "Total Mass Sum = 100.0%";
+
+            if (chemChart) {
+                chemChart.data.datasets[0].data = p.chem.data;
+                chemChart.update();
+            }
+        }
+    }
+
+    window.onload = function() {
+        initChart();
+    };
+</script>
+
+</body>
+</html>
