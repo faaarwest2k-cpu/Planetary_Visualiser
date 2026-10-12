@@ -38,7 +38,7 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.25rem;
-            padding: 1.75rem 2rem; /* Slightly reduced overall height padding */
+            padding: 1.75rem 2rem;
             width: 100%;
             max-width: 620px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(59, 130, 246, 0.1);
@@ -47,7 +47,7 @@
         }
         .view-container {
             position: relative;
-            width: 340px;
+            width: 360px;
             height: 340px;
             margin: 0 auto 1.25rem auto;
             display: flex;
@@ -170,7 +170,7 @@
         }
         .callout-text {
             fill: #e2e8f0;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 500;
         }
         .hidden {
@@ -189,7 +189,8 @@
         
         <!-- View 1: Textured Spherical Cross-Section with Metallic Core & Custom Text Colors -->
         <div id="layers-view" class="view-container">
-            <svg viewBox="0 0 360 360">
+            <!-- Expanded viewBox width from 360 to 420 to give room for side labels -->
+            <svg viewBox="0 0 420 360">
                 <defs>
                     <radialGradient id="mantleGrad" cx="35%" cy="35%" r="70%">
                         <stop offset="0%" stop-color="#fed7aa" />
@@ -205,22 +206,22 @@
                     </radialGradient>
                 </defs>
 
-                <!-- Mantle Layer -->
-                <circle id="layer-mantle" cx="180" cy="180" r="120" fill="url(#mantleGrad)" />
+                <!-- Mantle Layer (Shifted center slightly left to x=150 to make space on the right) -->
+                <circle id="layer-mantle" cx="150" cy="180" r="110" fill="url(#mantleGrad)" />
                 <!-- Core Layer (Metallic) -->
-                <circle id="layer-core" cx="180" cy="180" r="98" fill="url(#metallicCoreGrad)" />
+                <circle id="layer-core" cx="150" cy="180" r="88" fill="url(#metallicCoreGrad)" />
                 <!-- Crust Ring -->
-                <circle id="layer-crust" cx="180" cy="180" r="120" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                <circle id="layer-crust" cx="150" cy="180" r="110" fill="none" stroke="#e2e8f0" stroke-width="7" />
 
-                <!-- Callout Lines & Labels with Custom Contrast Text Colors -->
-                <line class="callout-line" x1="265" y1="100" x2="315" y2="60" />
-                <text id="txt-crust" class="callout-text" x="320" y="55" fill="#93c5fd">Crust</text>
+                <!-- Callout Lines & Labels safely positioned away from the planet graphic -->
+                <line id="line-crust" class="callout-line" x1="240" y1="120" x2="300" y2="70" />
+                <text id="txt-crust" class="callout-text" x="308" y="74" fill="#93c5fd">Crust (35-50 km)</text>
 
-                <line class="callout-line" x1="275" y1="180" x2="315" y2="140" />
-                <text id="txt-mantle" class="callout-text" x="320" y="135" fill="#fdba74">Mantle</text>
+                <line id="line-mantle" class="callout-line" x1="220" y1="180" x2="300" y2="180" />
+                <text id="txt-mantle" class="callout-text" x="308" y="184" fill="#fdba74">Mantle (375 km)</text>
 
-                <line class="callout-line" x1="215" y1="220" x2="315" y2="220" />
-                <text id="txt-core" class="callout-text" x="320" y="225" fill="#e2e8f0">Core</text>
+                <line id="line-core" class="callout-line" x1="190" y1="215" x2="300" y2="290" />
+                <text id="txt-core" class="callout-text" x="308" y="294" fill="#e2e8f0">Core (2020 km)</text>
             </svg>
         </div>
 
@@ -339,8 +340,8 @@
             radius: "2,439.4 km",
             coreRatio: "82.8%",
             coreRadius: "2,020 km",
-            mantleR: 120,
-            coreR: 98,
+            mantleR: 110,
+            coreR: 88,
             crustWidth: 7,
             labels: { crust: "Crust (35-50 km)", mantle: "Mantle (375 km)", core: "Core (2020 km)" },
             details: {
@@ -357,8 +358,8 @@
             radius: "6,051.8 km",
             coreRatio: "52.5%",
             coreRadius: "3,175 km",
-            mantleR: 138,
-            coreR: 78,
+            mantleR: 125,
+            coreR: 70,
             crustWidth: 8,
             labels: { crust: "Crust (10-30 km)", mantle: "Mantle (2925 km)", core: "Core (3175 km)" },
             details: {
@@ -375,8 +376,8 @@
             radius: "6,371.0 km",
             coreRatio: "54.6%",
             coreRadius: "3,480 km",
-            mantleR: 145,
-            coreR: 82,
+            mantleR: 130,
+            coreR: 74,
             crustWidth: 9,
             labels: { crust: "Crust (5-70 km)", mantle: "Mantle (2900 km)", core: "Core (3480 km)" },
             details: {
@@ -393,8 +394,8 @@
             radius: "3,389.5 km",
             coreRatio: "54.0%",
             coreRadius: "1,830 km",
-            mantleR: 128,
-            coreR: 62,
+            mantleR: 115,
+            coreR: 56,
             crustWidth: 10,
             labels: { crust: "Crust (30-70 km)", mantle: "Mantle (1550 km)", core: "Core (1830 km)" },
             details: {
@@ -490,6 +491,28 @@
             document.getElementById('layer-crust').setAttribute('r', p.mantleR);
             document.getElementById('layer-crust').style.strokeWidth = p.crustWidth;
 
+            // Planet Center moved slightly left to x=150
+            const cx = 150;
+            const cy = 180;
+            const crustRadius = p.mantleR;
+            const coreRadius = p.coreR;
+            const mantleMidRadius = (crustRadius + coreRadius) / 2;
+
+            // Crust boundary pointing (top-right)
+            const crustAngle = -Math.PI / 4;
+            document.getElementById('line-crust').setAttribute('x1', cx + crustRadius * Math.cos(crustAngle));
+            document.getElementById('line-crust').setAttribute('y1', cy + crustRadius * Math.sin(crustAngle));
+
+            // Mantle boundary pointing (mid-right)
+            const mantleAngle = 0.15;
+            document.getElementById('line-mantle').setAttribute('x1', cx + mantleMidRadius * Math.cos(mantleAngle));
+            document.getElementById('line-mantle').setAttribute('y1', cy + mantleMidRadius * Math.sin(mantleAngle));
+
+            // Core boundary pointing (lower-right)
+            const coreAngle = Math.PI / 4;
+            document.getElementById('line-core').setAttribute('x1', cx + (coreRadius * 0.7) * Math.cos(coreAngle));
+            document.getElementById('line-core').setAttribute('y1', cy + (coreRadius * 0.7) * Math.sin(coreAngle));
+
             document.getElementById('txt-crust').textContent = p.labels.crust;
             document.getElementById('txt-mantle').textContent = p.labels.mantle;
             document.getElementById('txt-core').textContent = p.labels.core;
@@ -516,8 +539,12 @@
 
     window.onload = function() {
         initChart();
+        updateDashboard();
     };
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
