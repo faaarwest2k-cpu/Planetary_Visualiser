@@ -38,7 +38,7 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.25rem;
-            padding: 1.25rem 1.75rem; /* Slightly reduced top/bottom padding */
+            padding: 1.25rem 1.75rem;
             width: 100%;
             max-width: 620px;
             box-sizing: border-box;
@@ -49,8 +49,8 @@
         .view-container {
             position: relative;
             width: 380px;
-            height: 310px; /* Slightly reduced height */
-            margin: 0 auto 0.85rem auto; /* Reduced bottom margin */
+            height: 310px;
+            margin: 0 auto 0.85rem auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -64,9 +64,9 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
-            margin-bottom: 0.85rem; /* Reduced bottom margin */
+            margin-bottom: 0.85rem;
             background: rgba(15, 23, 42, 0.85);
-            padding: 0.85rem 1rem; /* Slightly reduced padding */
+            padding: 0.85rem 1rem;
             border-radius: 0.85rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -89,12 +89,12 @@
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 0.75rem;
-            padding: 0.75rem 1rem; /* Slightly reduced padding */
-            margin-bottom: 0.85rem; /* Reduced bottom margin */
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.85rem;
             text-align: left;
             font-size: 0.85rem;
             color: #cbd5e1;
-            min-height: 130px; /* Adjusted locked height to match tighter layout */
+            min-height: 130px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -134,7 +134,7 @@
             background-color: rgba(15, 23, 42, 0.9);
             color: #f8fafc;
             border: 1px solid #475569;
-            padding: 0.55rem; /* Slightly tighter padding */
+            padding: 0.55rem;
             border-radius: 0.65rem;
             font-size: 0.9rem;
             outline: none;
@@ -160,7 +160,7 @@
             border: none;
             background: transparent;
             font-size: 0.75rem;
-            padding: 0.55rem 0.2rem; /* Matches input sizing */
+            padding: 0.55rem 0.2rem;
             transition: background 0.2s;
             text-align: center;
         }
@@ -207,9 +207,29 @@
             .stats-grid {
                 gap: 0.5rem;
                 padding: 0.75rem;
+                grid-template-columns: 1fr; /* Stack vertically on mobile */
+            }
+            .stat-item {
+                display: flex;
+                justify-content: space-between; /* Heading/Label left aligned, Data right aligned */
+                align-items: center;
+                text-align: left;
+            }
+            .stat-label {
+                margin-bottom: 0;
             }
             .stat-value {
                 font-size: 0.95rem;
+                text-align: right;
+            }
+            .details-row {
+                text-align: left;
+            }
+            .details-key {
+                text-align: left;
+            }
+            .details-panel span:last-child {
+                text-align: right; /* Ensure corresponding data is right aligned */
             }
         }
     </style>
