@@ -47,7 +47,7 @@
         }
         .view-container {
             position: relative;
-            width: 360px;
+            width: 380px;
             height: 340px;
             margin: 0 auto 1.25rem auto;
             display: flex;
@@ -170,8 +170,8 @@
         }
         .callout-text {
             fill: #e2e8f0;
-            font-size: 11.5px;
-            font-weight: 500;
+            font-size: 13.5px; /* Enlarged label font size */
+            font-weight: 600;  /* Bolder for better readability */
         }
         .hidden {
             display: none !important;
@@ -189,8 +189,8 @@
         
         <!-- View 1: Textured Spherical Cross-Section with Metallic Core & Custom Text Colors -->
         <div id="layers-view" class="view-container">
-            <!-- Expanded viewBox width from 360 to 420 to give room for side labels -->
-            <svg viewBox="0 0 420 360">
+            <!-- Expanded viewBox width to 440 to give ample side room for bigger text -->
+            <svg viewBox="0 0 440 360">
                 <defs>
                     <radialGradient id="mantleGrad" cx="35%" cy="35%" r="70%">
                         <stop offset="0%" stop-color="#fed7aa" />
@@ -206,22 +206,22 @@
                     </radialGradient>
                 </defs>
 
-                <!-- Mantle Layer (Shifted center slightly left to x=150 to make space on the right) -->
-                <circle id="layer-mantle" cx="150" cy="180" r="110" fill="url(#mantleGrad)" />
+                <!-- Mantle Layer (Shifted center slightly left to x=140) -->
+                <circle id="layer-mantle" cx="140" cy="180" r="110" fill="url(#mantleGrad)" />
                 <!-- Core Layer (Metallic) -->
-                <circle id="layer-core" cx="150" cy="180" r="88" fill="url(#metallicCoreGrad)" />
+                <circle id="layer-core" cx="140" cy="180" r="88" fill="url(#metallicCoreGrad)" />
                 <!-- Crust Ring -->
-                <circle id="layer-crust" cx="150" cy="180" r="110" fill="none" stroke="#e2e8f0" stroke-width="7" />
+                <circle id="layer-crust" cx="140" cy="180" r="110" fill="none" stroke="#e2e8f0" stroke-width="7" />
 
-                <!-- Callout Lines & Labels safely positioned away from the planet graphic -->
-                <line id="line-crust" class="callout-line" x1="240" y1="120" x2="300" y2="70" />
-                <text id="txt-crust" class="callout-text" x="308" y="74" fill="#93c5fd">Crust (35-50 km)</text>
+                <!-- Callout Lines & Enlarged Labels -->
+                <line id="line-crust" class="callout-line" x1="230" y1="120" x2="290" y2="70" />
+                <text id="txt-crust" class="callout-text" x="298" y="75" fill="#93c5fd">Crust (35-50 km)</text>
 
-                <line id="line-mantle" class="callout-line" x1="220" y1="180" x2="300" y2="180" />
-                <text id="txt-mantle" class="callout-text" x="308" y="184" fill="#fdba74">Mantle (375 km)</text>
+                <line id="line-mantle" class="callout-line" x1="210" y1="180" x2="290" y2="180" />
+                <text id="txt-mantle" class="callout-text" x="298" y="185" fill="#fdba74">Mantle (375 km)</text>
 
-                <line id="line-core" class="callout-line" x1="190" y1="215" x2="300" y2="290" />
-                <text id="txt-core" class="callout-text" x="308" y="294" fill="#e2e8f0">Core (2020 km)</text>
+                <line id="line-core" class="callout-line" x1="180" y1="215" x2="290" y2="290" />
+                <text id="txt-core" class="callout-text" x="298" y="295" fill="#e2e8f0">Core (2020 km)</text>
             </svg>
         </div>
 
@@ -491,8 +491,8 @@
             document.getElementById('layer-crust').setAttribute('r', p.mantleR);
             document.getElementById('layer-crust').style.strokeWidth = p.crustWidth;
 
-            // Planet Center moved slightly left to x=150
-            const cx = 150;
+            // Planet Center at x=140
+            const cx = 140;
             const cy = 180;
             const crustRadius = p.mantleR;
             const coreRadius = p.coreR;
@@ -542,9 +542,6 @@
         updateDashboard();
     };
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
