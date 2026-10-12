@@ -41,6 +41,7 @@
             padding: 1.75rem 2rem;
             width: 100%;
             max-width: 620px;
+            box-sizing: border-box;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(59, 130, 246, 0.1);
             text-align: center;
             z-index: 1;
@@ -93,6 +94,11 @@
             text-align: left;
             font-size: 0.85rem;
             color: #cbd5e1;
+            min-height: 145px; /* Locked height prevents shifting when rows change */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .details-row {
             display: flex;
@@ -170,11 +176,41 @@
         }
         .callout-text {
             fill: #e2e8f0;
-            font-size: 13.5px; /* Enlarged label font size */
-            font-weight: 600;  /* Bolder for better readability */
+            font-size: 13.5px;
+            font-weight: 600;
         }
         .hidden {
             display: none !important;
+        }
+        .invisible {
+            visibility: hidden; /* Reserves layout space without displaying text */
+        }
+
+        /* Mobile Friendly Responsive Adjustments */
+        @media (max-width: 500px) {
+            body {
+                padding: 1rem;
+                justify-content: flex-start;
+            }
+            .card {
+                padding: 1.25rem 1rem;
+                max-width: 100%;
+            }
+            .view-container {
+                width: 100%;
+                height: 280px;
+            }
+            .controls-row {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .stats-grid {
+                gap: 0.5rem;
+                padding: 0.75rem;
+            }
+            .stat-value {
+                font-size: 0.95rem;
+            }
         }
     </style>
 </head>
@@ -189,7 +225,6 @@
         
         <!-- View 1: Textured Spherical Cross-Section with Metallic Core & Custom Text Colors -->
         <div id="layers-view" class="view-container">
-            <!-- Expanded viewBox width to 440 to give ample side room for bigger text -->
             <svg viewBox="0 0 440 360">
                 <defs>
                     <radialGradient id="mantleGrad" cx="35%" cy="35%" r="70%">
@@ -206,7 +241,7 @@
                     </radialGradient>
                 </defs>
 
-                <!-- Mantle Layer (Shifted center slightly left to x=140) -->
+                <!-- Mantle Layer -->
                 <circle id="layer-mantle" cx="140" cy="180" r="110" fill="url(#mantleGrad)" />
                 <!-- Core Layer (Metallic) -->
                 <circle id="layer-core" cx="140" cy="180" r="88" fill="url(#metallicCoreGrad)" />
@@ -246,13 +281,13 @@
             </div>
         </div>
 
-        <!-- Expanded Data Panel -->
+        <!-- Expanded Data Panel with Locked Min-Height -->
         <div class="details-panel" id="details-panel">
-            <div class="details-row"><span class="details-key">Crust Thickness:</span> <span id="val-crust-thick">35 – 50 km</span></div>
-            <div class="details-row"><span class="details-key">Crust Composition:</span> <span id="val-crust-comp">Silicate rock</span></div>
-            <div class="details-row"><span class="details-key">Mantle Thickness:</span> <span id="val-mantle-thick">375 km (Avg)</span></div>
-            <div class="details-row"><span class="details-key">Mantle State:</span> <span id="val-mantle-state">Solid / Viscous</span></div>
-            <div class="details-row"><span class="details-key">Core Composition:</span> <span id="val-core-comp">Iron-nickel alloy</span></div>
+            <div class="details-row" id="row-1"><span class="details-key" id="key-1">Crust Thickness:</span> <span id="val-1">35 – 50 km</span></div>
+            <div class="details-row" id="row-2"><span class="details-key" id="key-2">Crust Composition:</span> <span id="val-2">Silicate rock</span></div>
+            <div class="details-row" id="row-3"><span class="details-key" id="key-3">Mantle Thickness:</span> <span id="val-3">375 km (Avg)</span></div>
+            <div class="details-row" id="row-4"><span class="details-key" id="key-4">Mantle State:</span> <span id="val-4">Solid / Viscous</span></div>
+            <div class="details-row" id="row-5"><span class="details-key" id="key-5">Core Composition:</span> <span id="val-5">Iron-nickel alloy</span></div>
         </div>
 
         <!-- Controls Row -->
@@ -472,6 +507,10 @@
         
         document.getElementById('planet-title').innerText = p.name;
 
+        // Ensure rows 4 and 5 are visible again before updating
+        document.getElementById('row-4').classList.remove('invisible');
+        document.getElementById('row-5').classList.remove('invisible');
+
         if (currentView === 'layers') {
             document.getElementById('stat-label-1').innerText = "Mean Radius";
             document.getElementById('stat-val-1').innerText = p.radius;
@@ -480,35 +519,36 @@
             document.getElementById('stat-label-3').innerText = "Core Radius";
             document.getElementById('stat-val-3').innerText = p.coreRadius;
 
-            document.getElementById('val-crust-thick').innerText = p.details.crustThick;
-            document.getElementById('val-crust-comp').innerText = p.details.crustComp;
-            document.getElementById('val-mantle-thick').innerText = p.details.mantleThick;
-            document.getElementById('val-mantle-state').innerText = p.details.mantleState;
-            document.getElementById('val-core-comp').innerText = p.details.coreComp;
+            document.getElementById('key-1').innerText = "Crust Thickness:";
+            document.getElementById('val-1').innerText = p.details.crustThick;
+            document.getElementById('key-2').innerText = "Crust Composition:";
+            document.getElementById('val-2').innerText = p.details.crustComp;
+            document.getElementById('key-3').innerText = "Mantle Thickness:";
+            document.getElementById('val-3').innerText = p.details.mantleThick;
+            document.getElementById('key-4').innerText = "Mantle State:";
+            document.getElementById('val-4').innerText = p.details.mantleState;
+            document.getElementById('key-5').innerText = "Core Composition:";
+            document.getElementById('val-5').innerText = p.details.coreComp;
 
             document.getElementById('layer-mantle').setAttribute('r', p.mantleR);
             document.getElementById('layer-core').setAttribute('r', p.coreR);
             document.getElementById('layer-crust').setAttribute('r', p.mantleR);
             document.getElementById('layer-crust').style.strokeWidth = p.crustWidth;
 
-            // Planet Center at x=140
             const cx = 140;
             const cy = 180;
             const crustRadius = p.mantleR;
             const coreRadius = p.coreR;
             const mantleMidRadius = (crustRadius + coreRadius) / 2;
 
-            // Crust boundary pointing (top-right)
             const crustAngle = -Math.PI / 4;
             document.getElementById('line-crust').setAttribute('x1', cx + crustRadius * Math.cos(crustAngle));
             document.getElementById('line-crust').setAttribute('y1', cy + crustRadius * Math.sin(crustAngle));
 
-            // Mantle boundary pointing (mid-right)
             const mantleAngle = 0.15;
             document.getElementById('line-mantle').setAttribute('x1', cx + mantleMidRadius * Math.cos(mantleAngle));
             document.getElementById('line-mantle').setAttribute('y1', cy + mantleMidRadius * Math.sin(mantleAngle));
 
-            // Core boundary pointing (lower-right)
             const coreAngle = Math.PI / 4;
             document.getElementById('line-core').setAttribute('x1', cx + (coreRadius * 0.7) * Math.cos(coreAngle));
             document.getElementById('line-core').setAttribute('y1', cy + (coreRadius * 0.7) * Math.sin(coreAngle));
@@ -524,11 +564,16 @@
             document.getElementById('stat-label-3').innerText = "Bulk wt% Si";
             document.getElementById('stat-val-3').innerText = p.chem.data[2] + "%";
 
-            document.getElementById('val-crust-thick').innerText = p.name + " Bulk Chemistry Overview";
-            document.getElementById('val-crust-comp').innerText = "Fe: " + p.chem.data[0] + "% | O: " + p.chem.data[1] + "%";
-            document.getElementById('val-mantle-thick').innerText = "Si: " + p.chem.data[2] + "% | Mg: " + p.chem.data[3] + "%";
-            document.getElementById('val-mantle-state').innerText = "Others: " + p.chem.data[4] + "%";
-            document.getElementById('val-core-comp').innerText = "Total Mass Sum = 100.0%";
+            // Use visibility: hidden on extra rows so height remains constant and layout doesn't shift
+            document.getElementById('row-4').classList.add('invisible');
+            document.getElementById('row-5').classList.add('invisible');
+
+            document.getElementById('key-1').innerText = "Overview:";
+            document.getElementById('val-1').innerText = p.name + " Bulk Chemistry Overview";
+            document.getElementById('key-2').innerText = "Iron & Oxygen:";
+            document.getElementById('val-2').innerText = "Fe: " + p.chem.data[0] + "% | O: " + p.chem.data[1] + "%";
+            document.getElementById('key-3').innerText = "Silicon & Magnesium:";
+            document.getElementById('val-3').innerText = "Si: " + p.chem.data[2] + "% | Mg: " + p.chem.data[3] + "%";
 
             if (chemChart) {
                 chemChart.data.datasets[0].data = p.chem.data;
