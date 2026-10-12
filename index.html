@@ -207,11 +207,11 @@
             .stats-grid {
                 gap: 0.5rem;
                 padding: 0.75rem;
-                grid-template-columns: 1fr; /* Stack vertically on mobile */
+                grid-template-columns: 1fr;
             }
             .stat-item {
                 display: flex;
-                justify-content: space-between; /* Heading/Label left aligned, Data right aligned */
+                justify-content: space-between;
                 align-items: center;
                 text-align: left;
             }
@@ -229,7 +229,7 @@
                 text-align: left;
             }
             .details-panel span:last-child {
-                text-align: right; /* Ensure corresponding data is right aligned */
+                text-align: right;
             }
         }
     </style>
@@ -587,7 +587,7 @@
             document.getElementById('row-5').classList.add('invisible');
 
             document.getElementById('key-1').innerText = "Overview:";
-            document.getElementById('val-1').innerText = p.name + " Bulk Chemistry Overview";
+            document.getElementById('val-1').innerText = p.name + " Bulk Chemistry";
             document.getElementById('key-2').innerText = "Iron & Oxygen:";
             document.getElementById('val-2').innerText = "Fe: " + p.chem.data[0] + "% | O: " + p.chem.data[1] + "%";
             document.getElementById('key-3').innerText = "Silicon & Magnesium:";
